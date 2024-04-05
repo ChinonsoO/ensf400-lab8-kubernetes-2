@@ -1,22 +1,26 @@
-#Previous nginx-dep.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: nginx-dep
 spec:
+  replicas: 5
   selector:
     matchLabels:
       app: nginx
-      run: my-nginx
-  replicas: 2
   template:
     metadata:
       labels:
         app: nginx
-        run: my-nginx
     spec:
       containers:
       - name: nginx
-        image: nginx:1.7.9
+        image: nginx:1.14.2
         ports:
         - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-configmap
