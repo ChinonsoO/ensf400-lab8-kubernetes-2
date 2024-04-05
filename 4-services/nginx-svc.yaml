@@ -1,14 +1,11 @@
-#previous nginx-svc.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-nginx
-  labels:
-    run: my-nginx
+  name: nginx-svc
 spec:
   type: ClusterIP
   ports:
   - port: 80
-    protocol: TCP
+    targetPort: 80
   selector:
-    run: my-nginx
+    app: nginx
