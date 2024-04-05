@@ -1,42 +1,86 @@
-# ensf400-lab8-kubernetes-2
+Kubernetes Deployment with Nginx Load Balancer and Canary Deployment
+====================================================================
 
-## Objectives
-This lab will teach us the scheduling, configmaps, canary and blue-green deployment strategies of Kubernetes. Through Minikube, a simplified Kubernetes engine running on a single computer, we practice the key concepts and usage of Kubernetes.
+This README provides step-by-step instructions on how to deploy a Kubernetes cluster with an Nginx load balancer and perform a canary deployment using Minikube.
 
-## Environment
+Prerequisites
+-------------
 
-### Set Up Your GitHub CodeSpaces Instance
+*   Minikube installed on your local machine
+    
+*   kubectl command-line tool installed
+    
+*   Docker installed (if using Minikube with Docker driver)
+    
 
-Same as Lab 6, this lab will be performed in [GitHub CodeSpaces](https://github.com/codespaces). Create an instance using GitHub Codespaces. Choose repository `denoslab/ensf400-lab8-kubernetes-2`.
+Steps
+-----
 
+1.  minikube start
+    
+2.  minikube addons enable ingress
+    
+3.  kubectl apply -f app-1-dep.yaml 
+   
+4.  kubectl apply -f app-1-svc.yaml
+    
+5.  kubectl apply -f app-2-dep.yaml 
+   
+6.  kubectl apply -f app-2-svc.yaml
+    
+7.  kubectl apply -f nginx-configmap.yaml
+    
+8.  kubectl apply -f nginx-dep.yaml
+    
+9.  kubectl apply -f nginx-svc.yaml
+    
+10. kubectl apply -f app-1-ingress.yaml
+    
+11. kubectl apply -f app-2-ingress.yaml
+    
+### Check if deployments, services and ingress were correctly configured
 
-```bash
-$ minikube start --nodes 3 -p ensf400
-```
+12. kubectl get deployments
+    
+13. kubectl get services
+    
+14. kubectl get ingress
 
-This step will start the Minikube service with 3 virtual nodes, stored in a profile called `ensf400`. If for some reason your Codespaces instance was stopped (e.g., not using it for a while). You can restart the minikube service using this profile by running:
+### Test Application
 
-```bash
-$ minikube start -p ensf400
-```
+15.  curl http://$(minikube ip)/
 
-## Steps
+**You should see responses:**
 
-Go to Section 7 - 10 and complete the steps for each section. The steps can be found in the `README.md` files in each subdirectory.
+$ curl http://$(minikube ip)/
+Hello World from [app-1-dep-86f67f4f87-2d28z]!
+$ curl http://$(minikube ip)/
+Hello World from [app-2-dep-7f686c4d8d-lr95c]!
 
-## Have Your Work Checked By a TA
+from both app-1 and app-2 services based on the specified weights in the Ingress resources.
+    
 
-The TA will check the completion of the following tasks:
+Canary Deployment
+-----------------
 
-- Output of Section 7.
-- Output of Section 8.
-- Output of Section 9.
-- Output of Section 10.
+The Ingress resources (app-1-ingress.yaml and app-2-ingress.yaml) are configured to perform a canary deployment. The traffic is split between app-1 and app-2 services based on the specified weights.
 
+*   app-1 is the stable version and receives 70% of the traffic.
+    
+*   app-2 is the canary version and receives 30% of the traffic.
+    
 
-Each member of the group should be able to answer all of the following questions. The TA will ask each person one question selected at random, and the student must be able to answer the question to get credit for the lab.
+Weights in the Ingress resources can be adjusted to control the traffic distribution between the stable and canary versions.
 
-- Q1: Explain the scheduling strategy of Node Affinity and the scenarios to use it.
-- Q2: Explain the scheduling strategy of Pod Anti-Affinity and the scenarios to use it.
-- Q3: Explain the deployment strategy of blue-green deployment. How to switch between the two versions of deployments?
-- Q4: Explain the deployment strategy of canary deployment. How to adjust the ratio of users getting serviced by the canary deployment?
+Cleanup
+-------
+
+To clean up the resources created in this deployment, run the following commands:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   kubectl delete -f app-1-ingress.yaml  kubectl delete -f app-2-ingress.yaml  kubectl delete -f nginx-svc.yaml  kubectl delete -f nginx-dep.yaml  kubectl delete -f nginx-configmap.yaml  kubectl delete -f app-2-svc.yaml  kubectl delete -f app-2-dep.yaml  kubectl delete -f app-1-svc.yaml  kubectl delete -f app-1-dep.yaml   `
+
+This will delete all the created resources, including deployments, services, configmaps, and ingresses.
+
+Finally, you can stop Minikube:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   minikube stop   `
